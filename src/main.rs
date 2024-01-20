@@ -22,29 +22,21 @@ fn main() {
         listen_period: 150 as ms,
     });
 
-    let mut next_send_time = LinuxTime::millis() + 1000 as ms;
+    let exit_time = LinuxTime::millis() + 300 as ms;
+
+    let _ = node.send(
+        NodeString::from("beep").into_bytes(),
+        3 as AddressType,
+        12 as LifeTimeType,
+        true,
+    );
 
     loop {
         let current_time = LinuxTime::millis();
 
-        if current_time >= next_send_time {
-            let _ = node.send(
-                NodeString::from("beep").into_bytes(),
-                2 as AddressType,
-                12 as LifeTimeType,
-                true,
-            );
-
-            let _ = node.send(
-                NodeString::from("beep").into_bytes(),
-                3 as AddressType,
-                12 as LifeTimeType,
-                true,
-            );
-
-            next_send_time = current_time + 1000 as ms;
+        if current_time >= exit_time {
+            break;
         }
-
         let _ = node.update::<LinuxTime, LinuxSerial>();
     }
 }
