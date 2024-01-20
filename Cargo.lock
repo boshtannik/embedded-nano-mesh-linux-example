@@ -74,9 +74,9 @@ dependencies = [
 
 [[package]]
 name = "embedded-nano-mesh"
-version = "0.1.6"
+version = "0.1.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "08e2b6fab2178bc1eeea64bda8d1f29b7cba84265617cf379efab0b53817c4c9"
+checksum = "8cb6d978f46f288257eaa8c89173648991acf65a7a39af11492da8baa0a8e44c"
 dependencies = [
  "embedded-hal",
  "heapless",

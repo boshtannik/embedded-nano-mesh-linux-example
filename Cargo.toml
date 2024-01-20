@@ -6,7 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-embedded-nano-mesh = "0.1.6"
+embedded-nano-mesh = "0.1.7"
 platform-millis = "1.0.0"
 platform-millis-linux = "1.0.0"
 platform-serial-linux = "1.0.0"
