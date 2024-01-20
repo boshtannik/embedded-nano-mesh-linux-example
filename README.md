@@ -1,2 +1,2 @@
-This repository contains example of code, which is run on linux machine,
-and sends once in a second the message to the device 2, that it has to beep.
+This repository contains example of code, which runs on linux machine (device 1),
+and notifies device 2 about, that it's time to beep!
