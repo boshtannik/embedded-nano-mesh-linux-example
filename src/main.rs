@@ -29,8 +29,15 @@ fn main() {
 
         if current_time >= next_send_time {
             let _ = node.send(
-                NodeString::from("beep once").into_bytes(),
+                NodeString::from("beep").into_bytes(),
                 2 as AddressType,
+                12 as LifeTimeType,
+                true,
+            );
+
+            let _ = node.send(
+                NodeString::from("beep").into_bytes(),
+                3 as AddressType,
                 12 as LifeTimeType,
                 true,
             );
