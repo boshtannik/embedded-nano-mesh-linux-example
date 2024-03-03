@@ -1,2 +1,6 @@
-This repository contains example of code, which runs on linux machine (device 1),
-and notifies device 2 about, that it's time to beep!
+This repository contains example of code, which runs on linux machine.
+
+to run example - use:
+cargo run --example <example_name>
+
+all examples are located in `examples` directory.
