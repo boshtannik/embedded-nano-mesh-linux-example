@@ -6,10 +6,10 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-embedded-nano-mesh = "0.1.7"
+embedded-nano-mesh = "0.1.8"
 platform-millis = "1.0.0"
 platform-millis-linux = "1.0.0"
-platform-serial-linux = "1.0.0"
+platform-serial-linux = "1.0.2"
 platform-serial = "1.0.1"
 lazy_static = "1.4.0"
 serialport = "4.0.0"

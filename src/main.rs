@@ -19,10 +19,10 @@ fn main() {
 
     let mut node = Node::new(NodeConfig {
         device_address: 1 as AddressType,
-        listen_period: 150 as ms,
+        listen_period: 350 as ms,
     });
 
-    let exit_time = LinuxTime::millis() + 300 as ms;
+    let exit_time = LinuxTime::millis() + 600 as ms;
 
     let _ = node.send(
         NodeString::from("beep").into_bytes(),
