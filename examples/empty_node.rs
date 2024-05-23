@@ -1,6 +1,6 @@
-use embedded_nano_mesh::{AddressType, Node, NodeConfig};
+use embedded_nano_mesh::{ExactAddressType, Node, NodeConfig};
 
-use platform_millis_linux::{ms, LinuxTime};
+use platform_millis_linux::{ms, LinuxMillis};
 use platform_serial_linux::{
     configure_serial, CharSize, FlowControl, LinuxSerial, Parity, PortSettings, StopBits,
 };
@@ -17,12 +17,13 @@ fn main() -> ! {
         },
     );
 
+    // This node might be used to extend mesh network range.
     let mut mesh_node = Node::new(NodeConfig {
-        device_address: AddressType::MAX,
+        device_address: ExactAddressType::new(1).unwrap(),
         listen_period: 100 as ms,
     });
 
     loop {
-        let _ = mesh_node.update::<LinuxTime, LinuxSerial>();
+        let _ = mesh_node.update::<LinuxMillis, LinuxSerial>();
     }
 }

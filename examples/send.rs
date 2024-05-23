@@ -1,6 +1,8 @@
-use embedded_nano_mesh::{AddressType, LifeTimeType, Node, NodeConfig, NodeString, SendError};
+use embedded_nano_mesh::{
+    ExactAddressType, GeneralAddressType, LifeTimeType, Node, NodeConfig, NodeString, SendError,
+};
 
-use platform_millis_linux::{ms, LinuxTime};
+use platform_millis_linux::{ms, LinuxMillis};
 use platform_serial_linux::{
     configure_serial, CharSize, FlowControl, LinuxSerial, Parity, PortSettings, StopBits,
 };
@@ -18,25 +20,25 @@ fn main() -> ! {
     );
 
     let mut mesh_node = Node::new(NodeConfig {
-        device_address: 1 as AddressType,
+        device_address: ExactAddressType::new(1).unwrap(),
         listen_period: 150 as ms,
     });
 
     match mesh_node.send(
         NodeString::from("This is the message to be sent").into_bytes(),
-        2 as AddressType,
+        GeneralAddressType::Exact(ExactAddressType::new(2).unwrap()),
         10 as LifeTimeType,
         true,
     ) {
         Ok(()) => {
-            ufmt::uwriteln!(&mut LinuxSerial::default(), "Packet sent").unwrap();
+            println!("Packet sent");
         }
         Err(SendError::SendingQueueIsFull) => {
-            ufmt::uwriteln!(&mut LinuxSerial::default(), "SendingQueueIsFull").unwrap();
+            println!("Sending queue is full");
         }
     }
 
     loop {
-        let _ = mesh_node.update::<LinuxTime, LinuxSerial>();
+        let _ = mesh_node.update::<LinuxMillis, LinuxSerial>();
     }
 }

@@ -1,6 +1,6 @@
-use embedded_nano_mesh::{AddressType, Node, NodeConfig};
+use embedded_nano_mesh::{ExactAddressType, Node, NodeConfig};
 
-use platform_millis_linux::{ms, LinuxTime};
+use platform_millis_linux::{ms, LinuxMillis};
 use platform_serial_linux::{
     configure_serial, CharSize, FlowControl, LinuxSerial, Parity, PortSettings, StopBits,
 };
@@ -18,25 +18,20 @@ fn main() -> ! {
     );
 
     let mut mesh_node = Node::new(NodeConfig {
-        device_address: 1 as AddressType,
+        device_address: ExactAddressType::new(2).unwrap(),
         listen_period: 150 as ms,
     });
 
     loop {
-        let _ = mesh_node.update::<LinuxTime, LinuxSerial>();
+        let _ = mesh_node.update::<LinuxMillis, LinuxSerial>();
         if let Some(packet) = mesh_node.receive() {
-            ufmt::uwriteln!(
-                &mut LinuxSerial::default(),
-                "Packet from: {}",
-                packet.source_device_identifier
-            )
-            .unwrap();
+            println!("Packet from: {}", packet.source_device_identifier);
 
             for character in packet.data {
                 let character = char::from(character);
-                ufmt::uwrite!(&mut LinuxSerial::default(), "{}", character).unwrap();
+                print!("{}", character);
             }
-            ufmt::uwriteln!(&mut LinuxSerial::default(), "").unwrap();
+            println!("");
         }
     }
 }
