@@ -1,6 +1,4 @@
-use embedded_nano_mesh::{
-    ExactAddressType, LifeTimeType, Node, NodeConfig, NodeString, SendError,
-};
+use embedded_nano_mesh::{ExactAddressType, LifeTimeType, Node, NodeConfig, NodeString, SendError};
 
 use platform_millis_linux::{ms, LinuxMillis};
 use platform_serial_linux::{
@@ -24,14 +22,12 @@ fn main() -> ! {
         listen_period: 150 as ms,
     });
 
-    match mesh_node.send_to_exact(
-        NodeString::from("This is the message to be sent").into_bytes(),
-        ExactAddressType::new(2).unwrap(),
+    match mesh_node.broadcast(
+        NodeString::from("This is the message to be broadcasted").into_bytes(),
         10 as LifeTimeType,
-        true,
     ) {
         Ok(()) => {
-            println!("Packet sent");
+            println!("Packet broadcasted");
         }
         Err(SendError::SendingQueueIsFull) => {
             println!("Sending queue is full");
