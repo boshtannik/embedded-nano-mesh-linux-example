@@ -13,7 +13,7 @@ categories = ["embedded", "network-programming"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-embedded-nano-mesh = "1.1.2"
+embedded-nano-mesh = "1.2.0"
 platform-millis-linux = "2.0.0"
 platform-serial-linux = "1.0.2"
 lazy_static = "1.4.0"
