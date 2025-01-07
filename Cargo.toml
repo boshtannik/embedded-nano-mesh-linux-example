@@ -1,6 +1,6 @@
 [package]
 name = "embedded-nano-mesh-linux-examples"
-version = "1.2.0"
+version = "2.0.0"
 authors = ["Yevhen Shevchenko (boshtannik) <boshtannik@gmail.com>"]
 edition = "2021"
 license = "GPL-3.0-or-later"
@@ -13,12 +13,6 @@ categories = ["embedded", "network-programming"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-embedded-nano-mesh = "1.2.0"
-platform-millis-linux = "2.0.0"
-platform-serial-linux = "1.0.2"
-lazy_static = "1.4.0"
+embedded-nano-mesh = "2.0.0"
+embedded-serial = "0.5.0"
 serialport = "4.0.0"
-nb = "1.1.0"
-void = "1.0.2"
-serial-core = "0.4.0"
-ufmt = "0.2.0"

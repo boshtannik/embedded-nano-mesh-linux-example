@@ -1,22 +1,49 @@
 use embedded_nano_mesh::{
-    ExactAddressType, LifeTimeType, Node, NodeConfig, NodeString, SpecialSendError,
+    ms, ExactAddressType, LifeTimeType, Node, NodeConfig, NodeString, SpecialSendError,
 };
+use serialport;
+use std::{
+    io::{Read, Write},
+    time::Instant,
+};
+struct LinuxInterfaceDriver {
+    serial: serialport::TTYPort,
+}
 
-use platform_millis_linux::{ms, LinuxMillis};
-use platform_serial_linux::{
-    configure_serial, CharSize, FlowControl, LinuxSerial, Parity, PortSettings, StopBits,
-};
+impl LinuxInterfaceDriver {
+    pub fn new(serial: serialport::TTYPort) -> LinuxInterfaceDriver {
+        LinuxInterfaceDriver { serial }
+    }
+}
+
+impl embedded_serial::MutBlockingTx for LinuxInterfaceDriver {
+    type Error = ();
+
+    fn putc(&mut self, ch: u8) -> Result<(), Self::Error> {
+        self.serial.write(&[ch]).unwrap();
+        Ok(())
+    }
+}
+
+impl embedded_serial::MutNonBlockingRx for LinuxInterfaceDriver {
+    type Error = ();
+
+    fn getc_try(&mut self) -> Result<Option<u8>, Self::Error> {
+        let mut buf = [0u8];
+        match self.serial.read(&mut buf) {
+            Ok(_) => Ok(Some(buf[0])),
+            Err(_) => Ok(None),
+        }
+    }
+}
 
 fn main() -> ! {
-    configure_serial(
-        "/dev/ttyUSB0".to_string(),
-        PortSettings {
-            baud_rate: serial_core::BaudRate::Baud9600,
-            char_size: CharSize::Bits8,
-            parity: Parity::ParityNone,
-            stop_bits: StopBits::Stop1,
-            flow_control: FlowControl::FlowNone,
-        },
+    let program_start_time = Instant::now();
+
+    let mut serial = LinuxInterfaceDriver::new(
+        serialport::new("/dev/ttyUSB0", 9600)
+            .open_native()
+            .expect("Fail to open serial port"),
     );
 
     let mut mesh_node = Node::new(NodeConfig {
@@ -24,24 +51,47 @@ fn main() -> ! {
         listen_period: 150 as ms,
     });
 
-    match mesh_node.send_ping_pong::<LinuxMillis, LinuxSerial>(
-        NodeString::from("This is the message to be sent").into_bytes(),
-        ExactAddressType::new(1).unwrap(),
-        10 as LifeTimeType,
-        3000 as ms,
-    ) {
-        Ok(()) => {
-            println!("Packet sent");
-        }
-        Err(SpecialSendError::SendingQueueIsFull) => {
-            println!("Sending queue is full");
-        }
-        Err(SpecialSendError::Timeout) => {
-            println!("Timeout");
-        }
-    }
+    let mut count: u64 = u64::default();
+    let mut next_send_time = Instant::now()
+        .duration_since(program_start_time)
+        .as_millis() as ms;
 
     loop {
-        let _ = mesh_node.update::<LinuxMillis, LinuxSerial>();
+        let current_time = Instant::now()
+            .duration_since(program_start_time)
+            .as_millis() as ms;
+
+        if current_time > next_send_time {
+            let mut message = NodeString::new();
+            let _ = message.push_str("Message # ");
+            let _ = message.push_str(&NodeString::try_from(count).unwrap_or_default());
+            let _ = message.push_str("\n");
+
+            match mesh_node.send_ping_pong(
+                message.into_bytes(),              // Content.
+                ExactAddressType::new(2).unwrap(), // Send to device with address 2.
+                10 as LifeTimeType, // Let message travel 10 devices before being destroyed.
+                1000 as ms,
+                || {
+                    Instant::now()
+                        .duration_since(program_start_time)
+                        .as_millis() as ms
+                },
+                &mut serial,
+            ) {
+                Ok(()) => {
+                    println!("Message sent, pong caught.")
+                }
+                Err(SpecialSendError::SendingQueueIsFull) => {
+                    println!("SendingQueueIsFull")
+                }
+                Err(SpecialSendError::Timeout) => {
+                    println!("Timeout")
+                }
+            }
+            next_send_time = current_time + 600 as ms;
+            count += 1;
+        }
+        let _ = mesh_node.update(&mut serial, current_time);
     }
 }

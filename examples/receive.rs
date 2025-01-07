@@ -1,20 +1,47 @@
-use embedded_nano_mesh::{ExactAddressType, Node, NodeConfig};
-
-use platform_millis_linux::{ms, LinuxMillis};
-use platform_serial_linux::{
-    configure_serial, CharSize, FlowControl, LinuxSerial, Parity, PortSettings, StopBits,
+use embedded_nano_mesh::{ms, ExactAddressType, Node, NodeConfig};
+use serialport;
+use std::{
+    io::{Read, Write},
+    time::Instant,
 };
+struct LinuxInterfaceDriver {
+    serial: serialport::TTYPort,
+}
+
+impl LinuxInterfaceDriver {
+    pub fn new(serial: serialport::TTYPort) -> LinuxInterfaceDriver {
+        LinuxInterfaceDriver { serial }
+    }
+}
+
+impl embedded_serial::MutBlockingTx for LinuxInterfaceDriver {
+    type Error = ();
+
+    fn putc(&mut self, ch: u8) -> Result<(), Self::Error> {
+        self.serial.write(&[ch]).unwrap();
+        Ok(())
+    }
+}
+
+impl embedded_serial::MutNonBlockingRx for LinuxInterfaceDriver {
+    type Error = ();
+
+    fn getc_try(&mut self) -> Result<Option<u8>, Self::Error> {
+        let mut buf = [0u8];
+        match self.serial.read(&mut buf) {
+            Ok(_) => Ok(Some(buf[0])),
+            Err(_) => Ok(None),
+        }
+    }
+}
 
 fn main() -> ! {
-    configure_serial(
-        "/dev/ttyUSB0".to_string(),
-        PortSettings {
-            baud_rate: serial_core::BaudRate::Baud9600,
-            char_size: CharSize::Bits8,
-            parity: Parity::ParityNone,
-            stop_bits: StopBits::Stop1,
-            flow_control: FlowControl::FlowNone,
-        },
+    let program_start_time = Instant::now();
+
+    let mut serial = LinuxInterfaceDriver::new(
+        serialport::new("/dev/ttyUSB0", 9600)
+            .open_native()
+            .expect("Fail to open serial port"),
     );
 
     let mut mesh_node = Node::new(NodeConfig {
@@ -23,15 +50,18 @@ fn main() -> ! {
     });
 
     loop {
-        let _ = mesh_node.update::<LinuxMillis, LinuxSerial>();
+        let current_time = Instant::now()
+            .duration_since(program_start_time)
+            .as_millis() as ms;
+
         if let Some(packet) = mesh_node.receive() {
             println!("Packet from: {}", packet.source_device_identifier);
-
-            for character in packet.data {
-                let character = char::from(character);
-                print!("{}", character);
-            }
-            println!("");
+            println!(
+                "Data: {}",
+                String::from_iter(packet.data.iter().map(|c| *c as char))
+            );
         }
+
+        let _ = mesh_node.update(&mut serial, current_time);
     }
 }
