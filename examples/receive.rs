@@ -1,13 +1,11 @@
-use embedded_nano_mesh::{ms, ExactAddressType, Node, NodeConfig};
-use serialport;
+use embedded_nano_mesh::{ms, ExactAddressType, Node, NodeConfig, PacketState};
+use embedded_nano_mesh_linux_io::*;
 use std::time::Instant;
-mod serial_driver;
-use serial_driver::*;
 
 fn main() -> ! {
     let program_start_time = Instant::now();
 
-    let mut serial = LinuxInterfaceDriver::new(
+    let mut serial = LinuxIO::new(
         serialport::new("/dev/ttyUSB0", 9600)
             .open_native()
             .expect("Fail to open serial port"),
@@ -21,6 +19,18 @@ fn main() -> ! {
     loop {
         if let Some(packet) = mesh_node.receive() {
             println!("Packet from: {}", packet.source_device_identifier);
+            println!(
+                "Type: {}",
+                match packet.get_spec_state() {
+                    PacketState::Normal => "Normal",
+                    PacketState::Ping => "Ping",
+                    PacketState::Pong => "Pong",
+                    PacketState::SendTransaction => "SendTransaction",
+                    PacketState::InitTransaction => "InitTransaction",
+                    PacketState::AcceptTransaction => "AcceptTransaction",
+                    PacketState::FinishTransaction => "FinishTransaction",
+                }
+            );
             println!(
                 "Data: {}",
                 String::from_iter(packet.data.iter().map(|c| *c as char))

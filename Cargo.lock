@@ -42,29 +42,39 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "06ea2b9bc92be3c2baa9334a323ebca2d6f074ff852cd1d7b11064035cd3868f"
 
 [[package]]
-name = "embedded-nano-mesh"
-version = "2.0.0"
+name = "embedded-io"
+version = "0.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "92db0e17c02ee79c671ffdfb05f7bcbd4ee4afca54cba176f6ffee0ddf9a5471"
+checksum = "edd0f118536f44f5ccd48bcb8b111bdc3de888b58c74639dfb034a357d0f206d"
+
+[[package]]
+name = "embedded-nano-mesh"
+version = "2.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3f7bc702cfd871ecb3d57acac03ea759903b42869a6d0541d528b70c8aa2d5b9"
 dependencies = [
- "embedded-serial",
+ "embedded-io",
  "heapless",
 ]
 
 [[package]]
 name = "embedded-nano-mesh-linux-examples"
-version = "2.0.1"
+version = "2.1.0"
 dependencies = [
  "embedded-nano-mesh",
- "embedded-serial",
- "serialport",
+ "embedded-nano-mesh-linux-io",
 ]
 
 [[package]]
-name = "embedded-serial"
-version = "0.5.0"
+name = "embedded-nano-mesh-linux-io"
+version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "23cba09b46dc33141b384b676b9b95ae03cc32d52afe173f9f67b701500d510e"
+checksum = "04c120d770e5877cdbdaf3ad2f39286cbf7256b43cdee75eea5603b9d75cb93c"
+dependencies = [
+ "embedded-io",
+ "serialport",
+ "ufmt",
+]
 
 [[package]]
 name = "hash32"
@@ -224,7 +234,7 @@ checksum = "6048858004bcff69094cd972ed40a32500f153bd3be9f716b2eed2e8217c4838"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn",
+ "syn 2.0.64",
 ]
 
 [[package]]
@@ -254,6 +264,17 @@ checksum = "a8f112729512f8e442d81f95a8a7ddf2b7c6b8a1a6f509a95864142b30cab2d3"
 
 [[package]]
 name = "syn"
+version = "1.0.109"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "72b64191b275b66ffe2469e8af2c1cfe3bafa67b529ead792a6d0160888b4237"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "unicode-ident",
+]
+
+[[package]]
+name = "syn"
 version = "2.0.64"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7ad3dee41f36859875573074334c200d1add8e4a87bb37113ebd31d926b7b11f"
@@ -280,8 +301,35 @@ checksum = "46c3384250002a6d5af4d114f2845d37b57521033f30d5c3f46c4d70e1197533"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn",
+ "syn 2.0.64",
 ]
+
+[[package]]
+name = "ufmt"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1a64846ec02b57e9108d6469d98d1648782ad6bb150a95a9baac26900bbeab9d"
+dependencies = [
+ "ufmt-macros",
+ "ufmt-write",
+]
+
+[[package]]
+name = "ufmt-macros"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d337d3be617449165cb4633c8dece429afd83f84051024079f97ad32a9663716"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 1.0.109",
+]
+
+[[package]]
+name = "ufmt-write"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e87a2ed6b42ec5e28cc3b94c09982969e9227600b2e3dcbc1db927a84c06bd69"
 
 [[package]]
 name = "unescaper"
